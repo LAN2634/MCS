@@ -6,6 +6,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.List;
+
 @Configuration
 public class Cors {
 
@@ -15,14 +17,13 @@ public class Cors {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://127.0.0.1:5500");
-        config.addAllowedOrigin("http://localhost:5500");
+        config.setAllowedOrigins(List.of(
+                "https://poetic-zabaione-b6470e.netlify.app", // <-- dominio de tu front
+                "http://127.0.0.1:5500",
+                "http://localhost:5500"
+        ));
         config.addAllowedHeader("*");
-        config.addAllowedMethod("GET");
-        config.addAllowedMethod("POST");
-        config.addAllowedMethod("PUT");
-        config.addAllowedMethod("DELETE");
-        config.addAllowedMethod("OPTIONS");
+        config.addAllowedMethod("*"); // permite GET, POST, PUT, DELETE, OPTIONS
         config.setMaxAge(3600L);
 
         source.registerCorsConfiguration("/**", config);
