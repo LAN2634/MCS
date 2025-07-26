@@ -28,7 +28,7 @@ public class Formulario {
 
     @Lob
     @Column(name = "imagen")
-    private String[] imagen;
+    private String imagen;
 
     @Column(name = "materiales")
     private String materiales;
@@ -100,10 +100,18 @@ public class Formulario {
         this.stock = stock;
     }
 
-    public String [] getImagen() { return imagen;
+   /* public String [] getImagen() { return imagen;
     }
 
     public void setImagen(String [] imagen) { this.imagen = imagen;
+    }*/
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 
     public String getMateriales() {
