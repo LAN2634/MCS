@@ -35,12 +35,15 @@ public class FormularioService {
     public byte [] decodificarab64 ( String imagen ){
        return Base64.getDecoder().decode(imagen.substring(imagen.indexOf(",")+1));
     }
+    public String codificarB64 ( byte [] imagen ){
+        return Base64.getEncoder().encodeToString(imagen);
+    }
 
     public List<Formulario> getAll(){
         List<Formulario> productos = productoRepository.findAll();
         productos.forEach(producto ->{
             if (Objects.nonNull(producto.getContenidoImagen())) {
-                producto.setImagen(new String(producto.getContenidoImagen()));
+                producto.setImagen("data:image/jpeg;base64,"+codificarB64(producto.getContenidoImagen()));
             }
         });
         return productos;
