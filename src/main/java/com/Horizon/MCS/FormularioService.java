@@ -2,6 +2,10 @@ package com.Horizon.MCS;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -16,7 +20,7 @@ public class FormularioService {
         // Generar SKU
         String sku = generarSKU(formulario.getCategoria(), formulario.getColor(), formulario.getTamanio());
         formulario.setSku(sku);
-
+        formulario.setContenidoImagen(decodificarab64(formulario.getImagen()));
         // Guardar producto
         return productoRepository.save(formulario);
     }
@@ -27,6 +31,19 @@ public class FormularioService {
         String tam = tamanio.toUpperCase();
         String sec = String.format("%03d", contador.getAndIncrement());
         return cat + "-" + col + "-" + tam + "-" + sec;
+    }
+    public byte [] decodificarab64 ( String imagen ){
+       return Base64.getDecoder().decode(imagen.substring(imagen.indexOf(",")+1));
+    }
+
+    public List<Formulario> getAll(){
+        List<Formulario> productos = productoRepository.findAll();
+        productos.forEach(producto ->{
+            if (Objects.nonNull(producto.getContenidoImagen())) {
+                producto.setImagen(new String(producto.getContenidoImagen()));
+            }
+        });
+        return productos;
     }
 }
 

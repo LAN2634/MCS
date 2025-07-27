@@ -1,5 +1,6 @@
 package com.Horizon.MCS;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -26,9 +27,12 @@ public class Formulario {
     @Column(name = "stock")
     private int stock;
 
-    @Lob
-    @Column(name = "imagen")
-    private String [] imagen;
+    @JsonIgnore
+    @Column(name = "imagen",columnDefinition = "BYTEA")
+    private byte [] contenidoImagen;
+
+    @Transient
+    private String imagen;
 
     @Column(name = "materiales")
     private String materiales;
@@ -100,13 +104,19 @@ public class Formulario {
         this.stock = stock;
     }
 
-    public String [] getImagen() { return imagen;
+    public byte [] getContenidoImagen() { return contenidoImagen;
     }
 
-    public void setImagen(String [] imagen) { this.imagen = imagen;
+    public void setContenidoImagen(byte [] contenidoImagen) { this.contenidoImagen = contenidoImagen;
     }
 
+    public String getImagen() {
+        return imagen;
+    }
 
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
 
     public String getMateriales() {
         return materiales;

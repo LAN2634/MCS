@@ -27,8 +27,9 @@ public class FormController {
     // Obtener todos los productos
     @GetMapping
     public List<Formulario> getAllProductos() {
-        return FormRepository.findAll();
+        return formularioService.getAll();
     }
+
     //=====================================================================================================
     // Obtener un producto por Id
     @GetMapping("/{id}")
@@ -37,6 +38,7 @@ public class FormController {
         return producto.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
     //=====================================================================================================
     // Filtrar productos por categoría
     @GetMapping("/filtrar")
@@ -45,12 +47,14 @@ public class FormController {
         List<Formulario> productos = FormRepository.findByCategoria(categoria);
         return ResponseEntity.ok(productos);
     }
+
     //=====================================================================================================
     // Crear un nuevo producto
     @PostMapping
     public Formulario createProducto(@RequestBody Formulario producto) {
         return formularioService.guardarFormulario(producto);
     }
+
     //=====================================================================================================
     // Actualizar un producto existente
     @PutMapping("/{id}")
@@ -65,11 +69,12 @@ public class FormController {
             producto.setColor(productoDetails.getColor());
             producto.setCuidados(productoDetails.getCuidados());
             producto.setPagodevolucion(productoDetails.getPagodevolucion());
-            producto.setImagen(productoDetails.getImagen());
+            producto.setContenidoImagen(formularioService.decodificarab64(productoDetails.getImagen()));
             Formulario updatedProducto = FormRepository.save(producto);
             return ResponseEntity.ok(updatedProducto);
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
     //=====================================================================================================================
     // Eliminar un producto por ID
     @DeleteMapping("/{id}")
@@ -80,6 +85,7 @@ public class FormController {
                     return ResponseEntity.noContent().build();
                 }).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
     //==============================================================================================================
     // Obtener el stock de un producto por ID
     @GetMapping("/{id}/stock")
@@ -95,7 +101,6 @@ public class FormController {
         }
     }
 
-
     //==============================================================================================================
     @GetMapping("/stock")
     public ResponseEntity<Map<String, Integer>> obtenerStock(@RequestParam Long id) {
@@ -109,55 +114,59 @@ public class FormController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
-//==================================================================================
-@PostMapping("/descontar-stock")
-public ResponseEntity<?> descontarStockPorSku(@RequestBody Formulario producto) {
 
-    String sku = producto.getSku();
-    int cantidad = producto.getStock(); // Interpretas stock como cantidad a descontar
+    //==================================================================================
+    @PostMapping("/descontar-stock")
+    public ResponseEntity<?> descontarStockPorSku(@RequestBody Formulario producto) {
 
-    Optional<Formulario> existenteOpt = FormRepository.findBySku(sku);
+        String sku = producto.getSku();
+        int cantidad = producto.getStock(); // Interpretas stock como cantidad a descontar
 
-    if (existenteOpt.isEmpty()) {
-        return ResponseEntity.badRequest().body("Producto no encontrado");
+        Optional<Formulario> existenteOpt = FormRepository.findBySku(sku);
+
+        if (existenteOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Producto no encontrado");
+        }
+
+        Formulario existente = existenteOpt.get();
+
+        if (existente.getStock() < cantidad) {
+            return ResponseEntity.badRequest().body("Stock insuficiente");
+        }
+
+        existente.setStock(existente.getStock() - cantidad);
+        FormRepository.save(existente);
+
+        return ResponseEntity.ok("Stock actualizado correctamente");
     }
 
-    Formulario existente = existenteOpt.get();
+    //==============Guardar pedidos===============
+    @PostMapping("/guardar")
+    public ResponseEntity<?> guardarPedido(@RequestBody Pedidos pedido) {
+        if (pedido.getCantidad() <= 0 || pedido.getTotal() <= 0) {
+            return ResponseEntity.badRequest().body("Cantidad o total inválido");
+        }
 
-    if (existente.getStock() < cantidad) {
-        return ResponseEntity.badRequest().body("Stock insuficiente");
+        pedido.setFechaPedido(LocalDateTime.now());
+        pedidoRepository.save(pedido);
+
+        return ResponseEntity.ok("Pedido guardado correctamente");
     }
 
-    existente.setStock(existente.getStock() - cantidad);
-    FormRepository.save(existente);
-
-    return ResponseEntity.ok("Stock actualizado correctamente");
-}
-//==============Guardar pedidos===============
-@PostMapping("/guardar")
-public ResponseEntity<?> guardarPedido(@RequestBody Pedidos pedido) {
-    if (pedido.getCantidad() <= 0 || pedido.getTotal() <= 0) {
-        return ResponseEntity.badRequest().body("Cantidad o total inválido");
-    }
-
-    pedido.setFechaPedido(LocalDateTime.now());
-    pedidoRepository.save(pedido);
-
-    return ResponseEntity.ok("Pedido guardado correctamente");
-}
-//=====================================================================
+    //=====================================================================
     //Obtener Pedidos
-@GetMapping("/pedidos")
-public ResponseEntity<List<Pedidos>> obtenerPedidos() {
-    List<Pedidos> listaPedidos = pedidoRepository.findAll();
-    return ResponseEntity.ok(listaPedidos);
-}
-//=========================================
+    @GetMapping("/pedidos")
+    public ResponseEntity<List<Pedidos>> obtenerPedidos() {
+        List<Pedidos> listaPedidos = pedidoRepository.findAll();
+        return ResponseEntity.ok(listaPedidos);
+    }
+
+    //=========================================
 //Obtener Pedidos filtrado por usuario
-@GetMapping("/pedidos/usuario/{username}")
-public List<Pedidos> obtenerPedidosPorUsuario(@PathVariable String username) {
-    return pedidoRepository.findByUsername(username);
-}
+    @GetMapping("/pedidos/usuario/{username}")
+    public List<Pedidos> obtenerPedidosPorUsuario(@PathVariable String username) {
+        return pedidoRepository.findByUsername(username);
+    }
 //=========================================================
 
 
