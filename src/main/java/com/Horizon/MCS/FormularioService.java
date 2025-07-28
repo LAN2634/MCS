@@ -32,25 +32,13 @@ public class FormularioService {
         String sec = String.format("%03d", contador.getAndIncrement());
         return cat + "-" + col + "-" + tam + "-" + sec;
     }
+
     public byte [] decodificarab64 ( String imagen ){
        return Base64.getDecoder().decode(imagen.substring(imagen.indexOf(",")+1));
     }
-    public String codificarB64 ( byte [] imagen ){
-        return Base64.getEncoder().encodeToString(imagen);
-    }
 
     public List<Formulario> getAll(){
-        List<Formulario> productos = productoRepository.findAll();
-        return inicializaImagen(productos);
-    }
-
-    public List<Formulario> inicializaImagen(List <Formulario>list){
-        list.forEach(producto ->{
-            if (Objects.nonNull(producto.getContenidoImagen())) {
-                producto.setImagen("data:image/jpeg;base64,"+codificarB64(producto.getContenidoImagen()));
-            }
-        });
-        return list;
+        return productoRepository.findAll();
     }
 }
 

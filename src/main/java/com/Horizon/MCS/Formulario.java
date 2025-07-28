@@ -3,6 +3,9 @@ package com.Horizon.MCS;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.Base64;
+import java.util.Objects;
+
 @Entity
 @Table(name ="Producto")
 public class Formulario {
@@ -111,7 +114,17 @@ public class Formulario {
     }
 
     public String getImagen() {
+        if (Objects.isNull(imagen)){
+            imagen = codificarB64(contenidoImagen);
+        }
         return imagen;
+    }
+
+    private String codificarB64 ( byte [] imagen ){
+        if (Objects.isNull(imagen)){
+            return null;
+        }
+        return  "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(imagen);
     }
 
     public void setImagen(String imagen) {

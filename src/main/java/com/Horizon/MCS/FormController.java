@@ -35,8 +35,6 @@ public class FormController {
     @GetMapping("/{id}")
     public ResponseEntity<Formulario> getProductoById(@PathVariable Long id) {
         Optional<Formulario> productoOpt = FormRepository.findById(id);
-        Formulario producto = productoOpt.orElseGet(Formulario::new);
-        producto.setImagen(formularioService.codificarB64(producto.getContenidoImagen()));
         return productoOpt.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -47,7 +45,7 @@ public class FormController {
     public ResponseEntity<List<Formulario>> filtrarProductosPorCategoria(
             @RequestParam String categoria) {
         List<Formulario> productos = FormRepository.findByCategoria(categoria);
-        return ResponseEntity.ok(formularioService.inicializaImagen(productos));
+        return ResponseEntity.ok(productos);
     }
 
     //=====================================================================================================
