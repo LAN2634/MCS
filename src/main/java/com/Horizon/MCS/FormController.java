@@ -45,7 +45,7 @@ public class FormController {
     public ResponseEntity<List<Formulario>> filtrarProductosPorCategoria(
             @RequestParam String categoria) {
         List<Formulario> productos = FormRepository.findByCategoria(categoria);
-        return ResponseEntity.ok(productos);
+        return ResponseEntity.ok(formularioService.inicializaImagen(productos));
     }
 
     //=====================================================================================================

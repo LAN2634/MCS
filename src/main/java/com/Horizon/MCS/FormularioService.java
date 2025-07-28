@@ -41,12 +41,16 @@ public class FormularioService {
 
     public List<Formulario> getAll(){
         List<Formulario> productos = productoRepository.findAll();
-        productos.forEach(producto ->{
+        return inicializaImagen(productos);
+    }
+
+    public List<Formulario> inicializaImagen(List <Formulario>list){
+        list.forEach(producto ->{
             if (Objects.nonNull(producto.getContenidoImagen())) {
                 producto.setImagen("data:image/jpeg;base64,"+codificarB64(producto.getContenidoImagen()));
             }
         });
-        return productos;
+        return list;
     }
 }
 
