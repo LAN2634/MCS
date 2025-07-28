@@ -34,8 +34,10 @@ public class FormController {
     // Obtener un producto por Id
     @GetMapping("/{id}")
     public ResponseEntity<Formulario> getProductoById(@PathVariable Long id) {
-        Optional<Formulario> producto = FormRepository.findById(id);
-        return producto.map(ResponseEntity::ok)
+        Optional<Formulario> productoOpt = FormRepository.findById(id);
+        Formulario producto = productoOpt.orElseGet(Formulario::new);
+        producto.setImagen(formularioService.codificarB64(producto.getContenidoImagen()));
+        return productoOpt.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
